@@ -1,12 +1,15 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/xid"
+
+	_ "embed"
 )
 
 type Recipe struct {
@@ -18,7 +21,14 @@ type Recipe struct {
 	PublishedAt  time.Time `json:"publishedAt"`
 }
 
+//go:embed recipes.json
+var recipesJSON []byte
+
 var recipes []Recipe
+
+func init() {
+	_ = json.Unmarshal(recipesJSON, &recipes)
+}
 
 func newRecipeHandler(c *gin.Context) {
 	var recipe Recipe
@@ -38,9 +48,14 @@ func newRecipeHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, recipe)
 }
 
+func listRecipesHandler(c *gin.Context) {
+	c.JSON(http.StatusOK, recipes)
+}
+
 func main() {
 	router := gin.Default()
 	router.POST("/recipes", newRecipeHandler)
+	router.GET("/recipes", listRecipesHandler)
 
 	if err := router.Run(); err != nil {
 		log.Fatal(err)
