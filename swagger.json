@@ -49,35 +49,53 @@
         "operationId": "newRecipe",
         "parameters": [
           {
-            "description": "Recipe to create",
-            "name": "recipe",
+            "x-go-name": "Name",
+            "name": "name",
             "in": "body",
-            "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "ingredients": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "instructions": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "name": {
-                  "type": "string"
-                },
-                "tags": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
+              "type": "string"
+            }
+          },
+          {
+            "x-go-name": "Tags",
+            "name": "tags",
+            "in": "body",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
               }
+            }
+          },
+          {
+            "x-go-name": "Ingredients",
+            "name": "ingredients",
+            "in": "body",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "x-go-name": "Instructions",
+            "name": "instructions",
+            "in": "body",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "x-go-name": "PublishedAt",
+            "name": "publishedAt",
+            "in": "body",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
             }
           }
         ],
