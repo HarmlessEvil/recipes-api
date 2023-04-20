@@ -50,6 +50,41 @@ func init() {
 }
 
 func newRecipeHandler(c *gin.Context) {
+	// swagger:operation POST /recipes recipes newRecipe
+	//
+	// Create new recipe
+	//
+	// ---
+	// parameters:
+	//   - name: recipe
+	//     in: body
+	//     description: Recipe to create
+	//     required: true
+	//     schema:
+	//      type: object
+	//      properties:
+	//       name:
+	//        type: string
+	//       tags:
+	//        type: array
+	//        items:
+	//         type: string
+	//       ingredients:
+	//        type: array
+	//        items:
+	//         type: string
+	//       instructions:
+	//        type: array
+	//        items:
+	//         type: string
+	// produces:
+	//   - application/json
+	// responses:
+	//  '200':
+	//   description: Successful operation
+	//  '400':
+	//   description: Invalid input
+
 	var recipe Recipe
 	if err := c.ShouldBindJSON(&recipe); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -80,6 +115,42 @@ func listRecipesHandler(c *gin.Context) {
 	//   description: Successful operation
 
 	c.JSON(http.StatusOK, recipes)
+}
+
+func getReceiptHandler(c *gin.Context) {
+	// swagger:operation GET /recipes/{id} recipes getRecipe
+	//
+	// Get an existing recipe
+	//
+	// ---
+	// parameters:
+	//   - name: id
+	//     in: path
+	//     description: ID of the recipe
+	//     required: true
+	//     type: string
+	// produces:
+	//   - application/json
+	// responses:
+	//  '200':
+	//   description: Successful operation
+	//  '404':
+	//   description: Invalid recipe ID
+
+	id := c.Param("id")
+
+	index := slices.IndexFunc(recipes, func(recipe Recipe) bool {
+		return recipe.ID == id
+	})
+	if index == -1 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "Recipe not found",
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, recipes[index])
 }
 
 func updateRecipeHandler(c *gin.Context) {
@@ -148,8 +219,6 @@ func deleteRecipeHandler(c *gin.Context) {
 	// responses:
 	//  '200':
 	//   description: Successful operation
-	//  '400':
-	//   description: Invalid input
 	//  '404':
 	//   description: Invalid recipe ID
 
@@ -189,10 +258,6 @@ func searchRecipesHandler(c *gin.Context) {
 	// responses:
 	//  '200':
 	//   description: Successful operation
-	//  '400':
-	//   description: Invalid input
-	//  '404':
-	//   description: Invalid recipe ID
 
 	tag := c.Query("tag")
 
@@ -212,6 +277,7 @@ func main() {
 	router := gin.Default()
 	router.POST("/recipes", newRecipeHandler)
 	router.GET("/recipes", listRecipesHandler)
+	router.GET("/recipes/:id", getReceiptHandler)
 	router.PUT("/recipes/:id", updateRecipeHandler)
 	router.DELETE("/recipes/:id", deleteRecipeHandler)
 	router.GET("/recipes/search", searchRecipesHandler)

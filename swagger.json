@@ -37,6 +37,58 @@
             "description": "Successful operation"
           }
         }
+      },
+      "post": {
+        "description": "Create new recipe",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "recipes"
+        ],
+        "operationId": "newRecipe",
+        "parameters": [
+          {
+            "description": "Recipe to create",
+            "name": "recipe",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ingredients": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "instructions": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "name": {
+                  "type": "string"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Invalid input"
+          }
+        }
       }
     },
     "/recipes/search": {
@@ -61,17 +113,38 @@
         "responses": {
           "200": {
             "description": "Successful operation"
-          },
-          "400": {
-            "description": "Invalid input"
-          },
-          "404": {
-            "description": "Invalid recipe ID"
           }
         }
       }
     },
     "/recipes/{id}": {
+      "get": {
+        "description": "Get an existing recipe",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "recipes"
+        ],
+        "operationId": "getRecipe",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "ID of the recipe",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "404": {
+            "description": "Invalid recipe ID"
+          }
+        }
+      },
       "put": {
         "description": "Update an existing recipe",
         "produces": [
@@ -123,9 +196,6 @@
         "responses": {
           "200": {
             "description": "Successful operation"
-          },
-          "400": {
-            "description": "Invalid input"
           },
           "404": {
             "description": "Invalid recipe ID"
