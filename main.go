@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/xid"
+	"golang.org/x/exp/slices"
 
 	_ "embed"
 )
@@ -52,10 +53,39 @@ func listRecipesHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, recipes)
 }
 
+func updateRecipeHandler(c *gin.Context) {
+	id := c.Param("id")
+
+	var recipe Recipe
+	if err := c.ShouldBindJSON(&recipe); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	index := slices.IndexFunc(recipes, func(recipe Recipe) bool {
+		return recipe.ID == id
+	})
+	if index == -1 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "Recipe not found",
+		})
+
+		return
+	}
+
+	recipes[index] = recipe
+
+	c.JSON(http.StatusOK, recipe)
+}
+
 func main() {
 	router := gin.Default()
 	router.POST("/recipes", newRecipeHandler)
 	router.GET("/recipes", listRecipesHandler)
+	router.PUT("/recipes/:id", updateRecipeHandler)
 
 	if err := router.Run(); err != nil {
 		log.Fatal(err)
