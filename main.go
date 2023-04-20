@@ -1,3 +1,20 @@
+// Recipes API
+//
+// This is a sample recipes API.
+// You can find out more about the API at https://github.com/PacktPublishing/Building-Distributed-Applications-in-Gin
+//
+// Schemes: http
+// Host: localhost:8080
+// BasePath: /
+// Version: 1.0.0
+// Contact: Alexander Chori <alexandrchori@gmail.com> http://chorilabs.com
+//
+// Consumes:
+// - application/json
+//
+// Produces:
+// - application/json
+// swagger:meta
 package main
 
 import (
@@ -51,10 +68,42 @@ func newRecipeHandler(c *gin.Context) {
 }
 
 func listRecipesHandler(c *gin.Context) {
+	// swagger:operation GET /recipes recipes listRecipes
+	//
+	// Returns list of recipes
+	//
+	// ---
+	// produces:
+	// - application/json
+	// responses:
+	//  '200':
+	//   description: Successful operation
+
 	c.JSON(http.StatusOK, recipes)
 }
 
 func updateRecipeHandler(c *gin.Context) {
+	// swagger:operation PUT /recipes/{id} recipes updateRecipe
+	//
+	// Update an existing recipe
+	//
+	// ---
+	// parameters:
+	//   - name: id
+	//     in: path
+	//     description: ID of the recipe
+	//     required: true
+	//     type: string
+	// produces:
+	//   - application/json
+	// responses:
+	//  '200':
+	//   description: Successful operation
+	//  '400':
+	//   description: Invalid input
+	//  '404':
+	//   description: Invalid recipe ID
+
 	id := c.Param("id")
 
 	var recipe Recipe
@@ -83,6 +132,27 @@ func updateRecipeHandler(c *gin.Context) {
 }
 
 func deleteRecipeHandler(c *gin.Context) {
+	// swagger:operation DELETE /recipes/{id} recipes deleteRecipe
+	//
+	// Delete an existing recipe
+	//
+	// ---
+	// parameters:
+	//   - name: id
+	//     in: path
+	//     description: ID of the recipe
+	//     required: true
+	//     type: string
+	// produces:
+	//   - application/json
+	// responses:
+	//  '200':
+	//   description: Successful operation
+	//  '400':
+	//   description: Invalid input
+	//  '404':
+	//   description: Invalid recipe ID
+
 	id := c.Param("id")
 
 	index := slices.IndexFunc(recipes, func(recipe Recipe) bool {
@@ -103,6 +173,27 @@ func deleteRecipeHandler(c *gin.Context) {
 }
 
 func searchRecipesHandler(c *gin.Context) {
+	// swagger:operation GET /recipes/search recipes searchRecipe
+	//
+	// Search for existing recipe by tag
+	//
+	// ---
+	// parameters:
+	//   - name: tag
+	//     in: query
+	//     description: tag of recipes
+	//     required: true
+	//     type: string
+	// produces:
+	//   - application/json
+	// responses:
+	//  '200':
+	//   description: Successful operation
+	//  '400':
+	//   description: Invalid input
+	//  '404':
+	//   description: Invalid recipe ID
+
 	tag := c.Query("tag")
 
 	var res []Recipe
