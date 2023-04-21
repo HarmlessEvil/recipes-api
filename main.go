@@ -25,6 +25,7 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -72,16 +73,35 @@ func seedDatabase(ctx context.Context, collection *mongo.Collection) error {
 	return nil
 }
 
+func connectToRedis(ctx context.Context) (*redis.Client, error) {
+	redisOptions, err := redis.ParseURL(os.Getenv("REDIS_URL"))
+	if err != nil {
+		return nil, err
+	}
+
+	redisClient := redis.NewClient(redisOptions)
+
+	status := redisClient.Ping(ctx)
+	log.Println("Redis", status)
+
+	return redisClient, nil
+}
+
 func runMain() error {
 	ctx := context.Background()
 
-	client, err := connectToMongoDB(ctx)
+	mongoDBClient, err := connectToMongoDB(ctx)
 	if err != nil {
 		return err
 	}
 
-	recipesCollection := client.Database(os.Getenv("MONGO_DATABASE")).Collection("recipes")
-	recipesHandler := handlers.NewRecipesHandler(ctx, recipesCollection)
+	redisClient, err := connectToRedis(ctx)
+	if err != nil {
+		return err
+	}
+
+	recipesCollection := mongoDBClient.Database(os.Getenv("MONGO_DATABASE")).Collection("recipes")
+	recipesHandler := handlers.NewRecipesHandler(ctx, recipesCollection, redisClient)
 
 	router := gin.Default()
 	router.POST("/recipes", recipesHandler.NewRecipeHandler)

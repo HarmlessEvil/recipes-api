@@ -17,6 +17,14 @@ services:
     volumes:
       - mongodb_data:/data/db
 
+  redis:
+    image: redis:7.0-alpine
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - 3834:6379
+    volumes:
+      - ./conf:/usr/local/etc/redis
+
 secrets:
   mongodb_user:
     environment: DB_USER
