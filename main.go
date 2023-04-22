@@ -19,7 +19,6 @@ package main
 
 import (
 	"context"
-	_ "embed"
 	"encoding/json"
 	"log"
 	"os"
@@ -32,6 +31,8 @@ import (
 
 	"github.com/harmlessevil/recipes-api/handlers"
 	"github.com/harmlessevil/recipes-api/models"
+
+	_ "embed"
 )
 
 //go:embed recipes.json
@@ -101,15 +102,29 @@ func runMain() error {
 	}
 
 	recipesCollection := mongoDBClient.Database(os.Getenv("MONGO_DATABASE")).Collection("recipes")
+	usersCollection := mongoDBClient.Database(os.Getenv("MONGO_DATABASE")).Collection("users")
+
+	authHandler := handlers.NewAuthHandler(ctx, usersCollection)
 	recipesHandler := handlers.NewRecipesHandler(ctx, recipesCollection, redisClient)
 
 	router := gin.Default()
-	router.POST("/recipes", recipesHandler.NewRecipeHandler)
 	router.GET("/recipes", recipesHandler.ListRecipesHandler)
 	router.GET("/recipes/:id", recipesHandler.GetRecipeHandler)
-	router.PUT("/recipes/:id", recipesHandler.UpdateRecipeHandler)
-	router.DELETE("/recipes/:id", recipesHandler.DeleteRecipeHandler)
 	router.GET("/recipes/search", recipesHandler.SearchRecipesHandler)
+
+	authenticated := router.Group("/")
+
+	authMiddleware, err := authHandler.AuthMiddleware()
+	if err != nil {
+		return err
+	}
+
+	authenticated.Use(authMiddleware)
+	{
+		authenticated.POST("/recipes", recipesHandler.NewRecipeHandler)
+		authenticated.PUT("/recipes/:id", recipesHandler.UpdateRecipeHandler)
+		authenticated.DELETE("/recipes/:id", recipesHandler.DeleteRecipeHandler)
+	}
 
 	return router.Run()
 }
