@@ -4,10 +4,16 @@
 // You can find out more about the API at https://github.com/PacktPublishing/Building-Distributed-Applications-in-Gin
 //
 // Schemes: http
-// Host: localhost:8080
+// Host: api.recipes.io:8080
 // BasePath: /
 // Version: 1.0.0
 // Contact: Alexander Chori <alexandrchori@gmail.com> http://chorilabs.com
+// SecurityDefinitions:
+// api_key:
+//
+//	type: apiKey
+//	name: Authorization
+//	in: header
 //
 // Consumes:
 // - application/json
@@ -23,6 +29,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -108,6 +115,13 @@ func runMain() error {
 	recipesHandler := handlers.NewRecipesHandler(ctx, recipesCollection, redisClient)
 
 	router := gin.Default()
+
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowCredentials = true
+	corsConfig.AllowOrigins = []string{"http://localhost:3000"}
+
+	router.Use(cors.New(corsConfig))
+
 	router.GET("/recipes", recipesHandler.ListRecipesHandler)
 	router.GET("/recipes/:id", recipesHandler.GetRecipeHandler)
 	router.GET("/recipes/search", recipesHandler.SearchRecipesHandler)
