@@ -118,7 +118,8 @@ func runMain() error {
 
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowCredentials = true
-	corsConfig.AllowOrigins = []string{"http://localhost:3000"}
+	corsConfig.AllowHeaders = append(corsConfig.AllowHeaders, "Authorization")
+	corsConfig.AllowOrigins = []string{"http://localhost:5173"}
 
 	router.Use(cors.New(corsConfig))
 
