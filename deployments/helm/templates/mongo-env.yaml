@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: mongo-env
+data:
+  mongodb_user: "asleep"
+  mongodb_password: "uNo*J8zb88Qf"
+
