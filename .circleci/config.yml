@@ -4,9 +4,6 @@ executors:
   environment:
     docker:
       - image: cimg/go:1.20
-        auth:
-          username: achori
-          password: $DOCKERHUB_ACCESS_TOKEN
 
 jobs:
   test:
@@ -45,6 +42,7 @@ jobs:
       - run:
           name: Push image
           command: |
+            echo $DOCKERHUB_ACCESS_TOKEN | docker login -u achori --password-stdin
             docker push achori/recipes-api:$TAG
             docker push achori/recipes-api:develop
 
