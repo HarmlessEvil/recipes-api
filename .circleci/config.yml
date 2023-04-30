@@ -38,7 +38,7 @@ jobs:
           name: Build image
           command: >
             TAG=0.1.$CIRCLE_BUILD_NUM
-            doker build -t achori/recipes-api/$TAG
+            docker build -t achori/recipes-api/$TAG
       - run:
           name: Push image
           command: >
