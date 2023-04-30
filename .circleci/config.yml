@@ -12,25 +12,6 @@ jobs:
   test:
     executor: environment
     steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - go-mod-{{ checksum "go.sum" }}
-      - run:
-          name: Install dependencies
-          command: go mod download
-      - save_cache:
-          key: go-mod-{{ checksum "go.sum" }}
-          paths:
-            - /go/pkg/mod
-      - run:
-          name: Code linting
-          command: >
-            wget -O- -nv https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.52.2
-            golangci-lint run
-      - run:
-          name: Unit tests
-          command: go test -v ./...
       - slack/notify:
           channel: '#ci'
           event: always
@@ -77,7 +58,7 @@ jobs:
                   "type": "actions",
                   "elements": [
                     {
-                      "type": ""button",
+                      "type": "button",
                       "text": {
                         "type": "plain_text",
                         "text": "View workflow"
@@ -88,6 +69,25 @@ jobs:
                 }
               ]
             }
+      - checkout
+      - restore_cache:
+          keys:
+            - go-mod-{{ checksum "go.sum" }}
+      - run:
+          name: Install dependencies
+          command: go mod download
+      - save_cache:
+          key: go-mod-{{ checksum "go.sum" }}
+          paths:
+            - /go/pkg/mod
+      - run:
+          name: Code linting
+          command: >
+            wget -O- -nv https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.52.2
+            golangci-lint run
+      - run:
+          name: Unit tests
+          command: go test -v ./...
   build:
     executor: environment
     steps:
