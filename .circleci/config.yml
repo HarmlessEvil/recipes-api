@@ -50,9 +50,28 @@ jobs:
               docker tag achori/recipes-api:$TAG achori/recipes-api:$CIRCLE_BRANCH
               docker push achori/recipes-api:$CIRCLE_BRANCH
             fi
+  release:
+    executor: environment
+    steps:
+      - run: echo released
 
 workflows:
   ci_cd:
     jobs:
       - test
       - build
+      - pause_workflow:
+          requires:
+            - build
+          type: approval
+          filters:
+            branches:
+              only:
+                - master
+      - release:
+          requires:
+            - pause_workflow
+          filters:
+            branches:
+              only:
+                - master
