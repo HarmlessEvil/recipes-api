@@ -1,0 +1,13 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: recipes-api-default
+spec:
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              io.kompose.network/recipes-api-default: "true"
+  podSelector:
+    matchLabels:
+      io.kompose.network/recipes-api-default: "true"
