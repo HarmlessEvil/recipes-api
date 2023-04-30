@@ -1,0 +1,15 @@
+apiVersion: v1
+data:
+  AUTH0_AUDIENCE: "https://api.recipes.io"
+  AUTH0_DOMAIN: "dev-j4nuxe1b4qfwimjb.us.auth0.com"
+  DB_PASSWORD: "uNo*J8zb88Qf"
+  DB_USER: "asleep"
+  MONGO_DATABASE: "demo"
+  MONGO_URI: "mongodb://asleep:uNo*J8zb88Qf@mongo:27017/test?authSource=admin&appName=recipes-api"
+  REDIS_URL: "redis://redis:6379/0"
+kind: Secret
+type: Opaque
+metadata:
+  labels:
+    io.kompose.service: api-env
+  name: env

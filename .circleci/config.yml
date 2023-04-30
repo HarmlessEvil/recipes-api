@@ -1,0 +1,77 @@
+version: 2.1
+
+executors:
+  environment:
+    docker:
+      - image: cimg/go:1.20
+
+jobs:
+  test:
+    executor: environment
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-mod-{{ checksum "go.sum" }}
+      - run:
+          name: Install dependencies
+          command: go mod download
+      - save_cache:
+          key: go-mod-{{ checksum "go.sum" }}
+          paths:
+            - /go/pkg/mod
+      - run:
+          name: Code linting
+          command: >
+            wget -O- -nv https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.52.2
+            golangci-lint run
+      - run:
+          name: Unit tests
+          command: go test -v ./...
+  build:
+    executor: environment
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Setup environment variables
+          command: echo 'export TAG="0.1.$CIRCLE_BUILD_NUM"' >> "$BASH_ENV"
+      - run:
+          name: Build image
+          command: docker build -t achori/recipes-api:$TAG --build-arg API_VERSION=$TAG .
+      - run:
+          name: Push image
+          command: |
+            echo $DOCKERHUB_ACCESS_TOKEN | docker login -u achori --password-stdin
+
+            docker push achori/recipes-api:$TAG
+            if [ $CIRCLE_BRANCH == "master" ] || [ $CIRCLE_BRANCH == "preprod" ] || [ $CIRCLE_BRANCH == "develop" ];
+            then
+              docker tag achori/recipes-api:$TAG achori/recipes-api:$CIRCLE_BRANCH
+              docker push achori/recipes-api:$CIRCLE_BRANCH
+            fi
+  release:
+    executor: environment
+    steps:
+      - run: echo released
+
+workflows:
+  ci_cd:
+    jobs:
+      - test
+      - build
+      - pause_workflow:
+          requires:
+            - build
+          type: approval
+          filters:
+            branches:
+              only:
+                - master
+      - release:
+          requires:
+            - pause_workflow
+          filters:
+            branches:
+              only:
+                - master
