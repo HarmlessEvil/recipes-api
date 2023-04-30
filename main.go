@@ -26,6 +26,7 @@ package main
 import (
 	"context"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/gin-contrib/cors"
@@ -69,6 +70,12 @@ func connectToRedis(ctx context.Context) (*redis.Client, error) {
 	return redisClient, nil
 }
 
+func versionHandler(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"version": os.Getenv("API_VERSION"),
+	})
+}
+
 func runMain() error {
 	ctx := context.Background()
 
@@ -97,6 +104,7 @@ func runMain() error {
 
 	router.Use(cors.New(corsConfig))
 
+	router.GET("/version", versionHandler)
 	router.GET("/recipes", recipesHandler.ListRecipesHandler)
 	router.GET("/recipes/:id", recipesHandler.GetRecipeHandler)
 	router.GET("/recipes/search", recipesHandler.SearchRecipesHandler)

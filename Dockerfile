@@ -10,6 +10,9 @@ RUN go build -o /recipes-api
 
 FROM gcr.io/distroless/base-debian11
 
+ARG API_VERSION
+ENV API_VERSION=$API_VERSION
+
 WORKDIR /
 
 COPY --from=build-stage /recipes-api /recipes-api
