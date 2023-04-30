@@ -171,6 +171,10 @@ jobs:
     executor: environment
     steps:
       - run: echo released
+      - slack/notify:
+          channel: '#ci'
+          event: pass
+          template: success_tagged_deploy_1
 
 workflows:
   ci_cd:
