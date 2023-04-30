@@ -29,8 +29,24 @@ jobs:
       - run:
           name: Unit tests
           command: go test -v ./...
+  build:
+    executor: environment
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build image
+          command: >
+            TAG=0.1.$CIRCLE_BUILD_NUM
+            doker build -t achori/recipes-api/$TAG
+      - run:
+          name: Push image
+          command: >
+            docker push achori/recipes-api:$TAG
+            docker push achori/recipes-api:develop
 
 workflows:
   ci_cd:
     jobs:
       - test
+      - build
