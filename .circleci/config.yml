@@ -126,8 +126,8 @@ jobs:
                   ],
                   "accessory": {
                     "type": "image",
-                    "image_url": "https://i.giphy.com/media/3NtY188QaxDdC/giphy.webp",
-                    "alt_text": "Sloth from Zootopia"
+                    "image_url": "https://i.giphy.com/media/14ut8PhnIwzros/giphy.webp",
+                    "alt_text": "Sponge Bob hiding under blanket and shaking of fear"
                   }
                 },
                 {
@@ -137,9 +137,9 @@ jobs:
                       "type": "button",
                       "text": {
                         "type": "plain_text",
-                        "text": "View workflow"
+                        "text": "View job"
                       },
-                      "url": "https://circleci.com/workflow-run/$CIRCLE_WORKFLOW_RUN"
+                      "url": "CIRCLE_BUILD_URL"
                     }
                   ]
                 }
