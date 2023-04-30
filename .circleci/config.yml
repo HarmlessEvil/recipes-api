@@ -21,7 +21,7 @@ jobs:
                 {
                   "type": "section",
                   "text": {
-                    "type": "markdown",
+                    "type": "mrkdwn",
                     "text": "*Build has started!* :crossed_fingers:"
                   }
                 },
