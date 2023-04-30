@@ -53,7 +53,7 @@ jobs:
                     "image_url": "https://media.giphy.com/media/3orieTfplMeFLiBQR2/giphy.gif",
                     "alt_text": "CircleCI logo"
                   }
-                ],
+                },
                 {
                   "type": "actions",
                   "elements": [
