@@ -4,6 +4,9 @@ executors:
   environment:
     docker:
       - image: cimg/go:1.20
+        auth:
+          username: achori
+          password: $DOCKERHUB_PASSWORD
 
 jobs:
   test:
