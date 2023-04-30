@@ -50,8 +50,8 @@ jobs:
                   ],
                   "accessory": {
                     "type": "image",
-                    "image_url": "https://media.giphy.com/media/3orieTfplMeFLiBQR2/giphy.gif",
-                    "alt_text": "CircleCI logo"
+                    "image_url": "https://i.giphy.com/media/3NtY188QaxDdC/giphy.webp",
+                    "alt_text": "Sloth from Zootopia"
                   }
                 },
                 {
@@ -88,6 +88,63 @@ jobs:
       - run:
           name: Unit tests
           command: go test -v ./...
+      - slack/notify:
+          channel: '#ci'
+          event: fail
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Tests failed, run for your life!* :fearful:"
+                  }
+                },
+                {
+                  "type": "divider"
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*:\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*When:*\n$(date)"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Branch:*\n$CIRCLE_BRANCH"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Author:*\n$CIRCLE_USERNAME"
+                    }
+                  ],
+                  "accessory": {
+                    "type": "image",
+                    "image_url": "https://i.giphy.com/media/3NtY188QaxDdC/giphy.webp",
+                    "alt_text": "Sloth from Zootopia"
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View workflow"
+                      },
+                      "url": "https://circleci.com/workflow-run/$CIRCLE_WORKFLOW_RUN"
+                    }
+                  ]
+                }
+              ]
+            }
   build:
     executor: environment
     steps:
