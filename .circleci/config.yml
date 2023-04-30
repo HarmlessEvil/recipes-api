@@ -41,7 +41,7 @@ jobs:
           command: docker build -t achori/recipes-api:$TAG .
       - run:
           name: Push image
-          command: >
+          command: |
             docker push achori/recipes-api:$TAG
             docker push achori/recipes-api:develop
 
