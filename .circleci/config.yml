@@ -28,6 +28,63 @@ jobs:
       - run:
           name: Unit tests
           command: go test -v ./...
+      - slack/notify:
+          channel: '#ci'
+          event: always
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "markdown",
+                    "text": "*Build has started!* :crossed_fingers:"
+                  }
+                },
+                {
+                  "type": "divider"
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*:\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*When:*\n$(date + '%d-%m-%Y%T')"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Branch:*\n$CIRCLE_BRANCH"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Author:*\n$CIRCLE_USERNAME"
+                    }
+                  ],
+                  "accessory": {
+                    "type": "image",
+                    "image_url": "https://media.giphy.com/media/3orieTfplMeFLiBQR2/giphy.gif",
+                    "alt_text": "CircleCI logo"
+                  }
+                ],
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": ""button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View workflow"
+                      },
+                      "url": "https://circleci.com/workflow-run/$CIRCLE_WORKFLOW_RUN"
+                    }
+                  ]
+                }
+              ]
+            }
   build:
     executor: environment
     steps:
