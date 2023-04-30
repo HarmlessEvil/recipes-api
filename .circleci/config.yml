@@ -42,7 +42,10 @@ jobs:
       - run:
           name: Push image
           command: |
-            docker tag achori/recipes-api:$TAG achori/recipes-api:develop
+            if [ $CIRCLE_BRANCH == "master" ] || [ $CIRCLE_BRANCH == "preprod" ] || [ $CIRCLE_BRANCH == "develop" ];
+            then
+              docker tag achori/recipes-api:$TAG achori/recipes-api:$CIRCLE_BRANCH
+            fi
             
             echo $DOCKERHUB_ACCESS_TOKEN | docker login -u achori --password-stdin
             docker push achori/recipes-api:$TAG
