@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f compose.yaml -o deployments
+    kompose.version: 1.28.0 (HEAD)
+  labels:
+    io.kompose.service: mongo
+  name: mongo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: mongo
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f compose.yaml -o deployments
+        kompose.version: 1.28.0 (HEAD)
+      labels:
+        io.kompose.network/recipes-api-default: "true"
+        io.kompose.service: mongo
+    spec:
+      containers:
+        - env:
+            - name: MONGO_INITDB_ROOT_PASSWORD_FILE
+              value: /run/secrets/mongodb_password
+            - name: MONGO_INITDB_ROOT_USERNAME_FILE
+              value: /run/secrets/mongodb_user
+          image: mongo:5.0
+          name: mongo
+          ports:
+            - containerPort: 27017
+          resources: { }
+          volumeMounts:
+            - mountPath: /run/secrets/mongodb_user
+              name: mongodb_user
+            - mountPath: /run/secrets/mongodb_password
+              name: mongodb_password
+            - mountPath: /data/db
+              name: mongodb-data
+      restartPolicy: Always
+      volumes:
+        - name: mongodb_user
+          secret:
+            items:
+              - key: mongodb_user
+                path: mongodb_user
+            secretName: mongo-env
+        - name: mongodb_password
+          secret:
+            items:
+              - key: mongodb_password
+                path: mongodb_password
+            secretName: mongo-env
+        - name: mongodb-data
+          persistentVolumeClaim:
+            claimName: mongodb-data

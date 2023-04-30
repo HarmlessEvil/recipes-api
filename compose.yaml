@@ -25,6 +25,27 @@ services:
     volumes:
       - ./conf:/usr/local/etc/redis
 
+  api:
+    build: .
+    ports:
+      - 8080
+    env_file: .env
+
+  dashboard:
+    build: ../recipes-dashboard
+    ports:
+      - 8080
+    env_file: ../recipes-dashboard/.env
+
+  nginx:
+    image: nginx:1.23-alpine
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - api
+
 secrets:
   mongodb_user:
     environment: DB_USER

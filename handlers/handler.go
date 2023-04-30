@@ -252,7 +252,7 @@ func (h *RecipesHandler) UpdateRecipeHandler(c *gin.Context) {
 		return
 	}
 
-	if _, err := h.collection.UpdateOne(h.ctx, bson.M{
+	res, err := h.collection.UpdateOne(h.ctx, bson.M{
 		"_id": objectID,
 	}, bson.D{{
 		Key: "$set", Value: bson.D{
@@ -261,11 +261,21 @@ func (h *RecipesHandler) UpdateRecipeHandler(c *gin.Context) {
 			{Key: "ingredients", Value: recipe.Ingredients},
 			{Key: "tags", Value: recipe.Tags},
 		},
-	}}); err != nil {
+	}})
+
+	if err != nil {
 		log.Println(err)
 
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
+		})
+
+		return
+	}
+
+	if res.MatchedCount == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"message": "Recipe not found",
 		})
 
 		return
