@@ -37,7 +37,7 @@ jobs:
                     },
                     {
                       "type": "mrkdwn",
-                      "text": "*When:*\n$(date "+%d-%m-%Y%T")"
+                      "text": "*When:*\n$(date)"
                     },
                     {
                       "type": "mrkdwn",
