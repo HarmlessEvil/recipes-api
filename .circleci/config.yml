@@ -56,3 +56,18 @@ workflows:
     jobs:
       - test
       - build
+      - pause_workflow:
+          requires:
+            - build
+          type: approval
+          filters:
+            branches:
+              only:
+                - master
+      - release:
+          requires:
+            - pause_workflow
+          filters:
+            branches:
+              only:
+                - master
