@@ -25,18 +25,22 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 
 	"github.com/harmlessevil/recipes-api/handlers"
+	"github.com/harmlessevil/recipes-api/metrics"
 
 	_ "embed"
 )
@@ -66,6 +70,9 @@ func connectToRedis(ctx context.Context) (*redis.Client, error) {
 
 	status := redisClient.Ping(ctx)
 	log.Println("Redis", status)
+	if _, err := status.Result(); err != nil {
+		return nil, err
+	}
 
 	return redisClient, nil
 }
@@ -97,6 +104,26 @@ func runMain() error {
 
 	router := gin.Default()
 
+	router.Use(gin.LoggerWithFormatter(func(params gin.LogFormatterParams) string {
+		return fmt.Sprintf(
+			"[%s] %s %s %d %s\n",
+			params.TimeStamp.Format("2006-01-02T15:04:05"),
+			params.Method,
+			params.Path,
+			params.StatusCode,
+			params.Latency,
+		)
+	}))
+
+	gin.DisableConsoleColor()
+
+	f, err := os.Create("debug.log")
+	if err != nil {
+		return err
+	}
+
+	gin.DefaultWriter = io.MultiWriter(f)
+
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowCredentials = true
 	corsConfig.AllowHeaders = append(corsConfig.AllowHeaders, "Authorization")
@@ -104,7 +131,11 @@ func runMain() error {
 
 	router.Use(cors.New(corsConfig))
 
+	router.Use(metrics.PrometheusMiddleware())
+	router.GET("/prometheus", gin.WrapH(promhttp.Handler()))
+
 	router.GET("/version", versionHandler)
+
 	router.GET("/recipes", recipesHandler.ListRecipesHandler)
 	router.GET("/recipes/:id", recipesHandler.GetRecipeHandler)
 	router.GET("/recipes/search", recipesHandler.SearchRecipesHandler)

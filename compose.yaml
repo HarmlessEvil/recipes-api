@@ -30,21 +30,77 @@ services:
     ports:
       - 8080
     env_file: .env
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:12201
+        tag: recipes-api
 
-  dashboard:
-    build: ../recipes-dashboard
-    ports:
-      - 8080
-    env_file: ../recipes-dashboard/.env
-
-  nginx:
-    image: nginx:1.23-alpine
-    ports:
-      - 80:80
+  prometheus:
+    image: bitnami/prometheus:2.43.0
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-    depends_on:
-      - api
+      - ./prometheus.yml:/opt/bitnami/prometheus/conf/prometheus.yml
+    ports:
+      - 9090:9090
+    restart: always
+
+  grafana:
+    image: grafana/grafana:9.5.1
+    ports:
+      - 3000
+    restart: always
+
+  telegraf:
+    image: telegraf:1.26-alpine
+    volumes:
+      - ./telegraf.toml:/etc/telegraf/telegraf.conf
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  logstash:
+    image: logstash:8.7.0
+    command: logstash -f /etc/logstash/logstash.conf
+    volumes:
+      - ./logstash.conf:/etc/logstash/logstash.conf
+    ports:
+      - 5000
+      - 12201:12201
+      - 12201:12201/udp
+
+  elasticsearch:
+    image: elasticsearch:8.7.0
+    ports:
+      - 9200:9200
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+
+  kibana:
+    image: kibana:8.7.0
+    ports:
+      - 5601:5601
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+
+  filebeat:
+    image: elastic/filebeat:8.7.0
+    volumes:
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - ./debug.log:/var/log/api/debug.log
+
+#  dashboard:
+#    build: ../recipes-dashboard
+#    ports:
+#      - 8080
+#    env_file: ../recipes-dashboard/.env
+#
+#  nginx:
+#    image: nginx:1.23-alpine
+#    ports:
+#      - 80:80
+#    volumes:
+#      - ./nginx.conf:/etc/nginx/nginx.conf
+#    depends_on:
+#      - api
 
 secrets:
   mongodb_user:
